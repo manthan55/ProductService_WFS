@@ -22,7 +22,8 @@ public class CategoryService implements ICategoryService {
                 .getForEntity(
                         "https://fakestoreapi.com/products/categories",
                         String[].class
-                        ).getBody();
+                        )
+                .getBody();
 
 
         assert response != null;

@@ -46,8 +46,9 @@ public class ProductController {
     }
 
     @PostMapping("/")
-    public String createProduct(@RequestBody CreateProductRequestDTO dto){
-        return "product created.. + "+ dto.getProductName();
+    public FakeStoreProductResponse createProduct(@RequestBody CreateProductRequestDTO dto){
+        FakeStoreProductResponse response = productService.addProduct(dto.getTitle(), dto.getPrice(), dto.getDescription(), dto.getImage(), dto.getCategory());
+        return response;
     }
 }
 
