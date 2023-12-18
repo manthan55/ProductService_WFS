@@ -1,0 +1,25 @@
+package com.example.productservice_wfs.fakestoreapi.models;
+
+import com.example.productservice_wfs.models.Category;
+import com.example.productservice_wfs.models.Product;
+import lombok.Data;
+
+@Data
+public class FSProduct {
+    String id;
+    String title;
+    Double price;
+    String description;
+    String category;
+    String image;
+
+    public static FSProduct fromProduct(Product product){
+        FSProduct fsProduct = new FSProduct();
+        fsProduct.setTitle(product.getTitle());
+        fsProduct.setPrice(product.getPrice());
+        fsProduct.setDescription(product.getDescription());
+        fsProduct.setCategory(product.getCategory().getName());
+        fsProduct.setImage(product.getImage());
+        return fsProduct;
+    }
+}

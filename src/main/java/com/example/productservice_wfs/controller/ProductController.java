@@ -1,7 +1,8 @@
 package com.example.productservice_wfs.controller;
 
-import com.example.productservice_wfs.dto.CreateProductRequestDTO;
+import com.example.productservice_wfs.dto.AddProductRequestDTO;
 import com.example.productservice_wfs.fakestoreapi.FakeStoreProductResponse;
+import com.example.productservice_wfs.models.Product;
 import com.example.productservice_wfs.service.IProductService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -23,32 +24,33 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}")
-    public HttpEntity<FakeStoreProductResponse> getProductById(@PathVariable("productId") Long productId) throws Exception {
-        FakeStoreProductResponse data =  productService.getProductById(productId);
-
+    public HttpEntity<Product> getProductById(@PathVariable("productId") Long productId) throws Exception {
         try{
-            if(Objects.isNull(data)){
+            Product product = productService.getProductById(productId);
+
+            if(Objects.isNull(product)){
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
             MultiValueMap<String,String> headers = new LinkedMultiValueMap<>();
             headers.add("class-name", "integrating APIS");
-            return new ResponseEntity<>(data,headers, HttpStatus.OK);
+
+            return new ResponseEntity<>(product,headers, HttpStatus.OK);
         } catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/")
-    public HttpEntity<List<FakeStoreProductResponse>> getAllProducts(){
-        List<FakeStoreProductResponse> responseList =  productService.getAllProducts();
-        return new ResponseEntity<>(responseList, HttpStatus.OK);
+    public HttpEntity<List<Product>> getAllProducts(){
+        List<Product> products = productService.getAllProducts();
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @PostMapping("/")
-    public FakeStoreProductResponse createProduct(@RequestBody CreateProductRequestDTO dto){
-        FakeStoreProductResponse response = productService.addProduct(dto.getTitle(), dto.getPrice(), dto.getDescription(), dto.getImage(), dto.getCategory());
-        return response;
+    public Product createProduct(@RequestBody AddProductRequestDTO dto){
+        Product product = productService.addProduct(Product.fromAddProductRequestDTO(dto));
+        return product;
     }
 }
 

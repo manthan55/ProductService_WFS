@@ -1,7 +1,12 @@
 package com.example.productservice_wfs.service;
 
+import ch.qos.logback.core.util.PropertySetterException;
+import com.example.productservice_wfs.exceptions.ProductNotFoundException;
+import com.example.productservice_wfs.fakestoreapi.FSClient;
 import com.example.productservice_wfs.fakestoreapi.FakeStoreCreateProductRequest;
 import com.example.productservice_wfs.fakestoreapi.FakeStoreProductResponse;
+import com.example.productservice_wfs.fakestoreapi.models.FSProduct;
+import com.example.productservice_wfs.models.Product;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
@@ -12,50 +17,53 @@ import java.util.List;
 @Service
 public class ProductService implements IProductService {
 
-    RestTemplateBuilder restTemplate;
+    private FSClient fsClient;
 
-    public ProductService(RestTemplateBuilder restTemplate) {
-        this.restTemplate = restTemplate;
+    public ProductService(FSClient fsClient) {
+        this.fsClient = fsClient;
     }
 
     @Override
-    public FakeStoreProductResponse getProductById(Long productId) {
-        FakeStoreProductResponse dto = restTemplate.build().
-                getForEntity("https://fakestoreapi.com/products/{id}",
-                        FakeStoreProductResponse.class, productId)
-                .getBody();
-
-        return dto;
+    public Product getProductById(Long productId) {
+        FSProduct fsProduct = fsClient.getProduct(productId);
+        return Product.fromFSProduct(fsProduct);
     }
 
     @Override
-    public List<FakeStoreProductResponse> getAllProducts() {
-        FakeStoreProductResponse[] dto =  restTemplate.build().
-                getForEntity("https://fakestoreapi.com/products",
-                FakeStoreProductResponse[].class).getBody();
-
-        return Arrays.asList(dto);
+    public List<Product> getAllProducts() {
+        List<FSProduct> fsProducts = fsClient.getAllProducts();
+        return Product.fromFSProductList(fsProducts);
     }
 
     @Override
-    public FakeStoreProductResponse addProduct(String title, Double price, String description, String image, String category) {
-        FakeStoreCreateProductRequest product = new FakeStoreCreateProductRequest();
-        product.setTitle(title);
-        product.setPrice(price);
-        product.setDescription(description);
-        product.setImage(image);
-        product.setCategory(category);
+    public Product addProduct(Product product) {
+        FSProduct fsProduct = fsClient.addProduct(FSProduct.fromProduct(product));
+        return Product.fromFSProduct(fsProduct);
 
-        HttpEntity<String> body = new HttpEntity<String>(product.toString());
-
-        FakeStoreProductResponse dto = restTemplate
-                .build()
-                .postForEntity(
-                        "https://fakestoreapi.com/products",
-                        body,
-                        FakeStoreProductResponse.class
-                ).getBody();
-
-        return dto;
+//
+//        FakeStoreCreateProductRequest product = new FakeStoreCreateProductRequest();
+//        product.setTitle(title);
+//        product.setPrice(price);
+//        product.setDescription(description);
+//        product.setImage(image);
+//        product.setCategory(category);
+//
+//        HttpEntity<String> body = new HttpEntity<String>(product.toString());
+//
+//        FakeStoreProductResponse dto = restTemplate
+//                .build()
+//                .postForEntity(
+//                        "https://fakestoreapi.com/products",
+//                        product,
+//                        FakeStoreProductResponse.class
+//                )
+//                .getBody();
+////                .postForObject(
+////                        "https://fakestoreapi.com/products",
+////                        product,
+////                        FakeStoreProductResponse.class
+////                );
+//
+//        return dto;
     }
 }

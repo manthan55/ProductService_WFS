@@ -1,15 +1,17 @@
 package com.example.productservice_wfs.service;
 
+import com.example.productservice_wfs.exceptions.ProductNotFoundException;
 import com.example.productservice_wfs.fakestoreapi.FakeStoreCreateProductRequest;
 import com.example.productservice_wfs.fakestoreapi.FakeStoreProductResponse;
+import com.example.productservice_wfs.models.Product;
 
 import java.util.List;
 
 public interface IProductService {
 
-    FakeStoreProductResponse getProductById(Long productId);
+    Product getProductById(Long productId);
 
-    List<FakeStoreProductResponse> getAllProducts();
+    List<Product> getAllProducts();
 
-    FakeStoreProductResponse addProduct(String title, Double price, String description, String image, String category);
+    Product addProduct(Product product);
 }
