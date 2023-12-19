@@ -54,14 +54,22 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
-    public HttpEntity<EditProductResponseDTO> editProduct(@PathVariable(name = "productId") Long productId, @RequestBody EditProductRequestDTO dto) throws ProductNotFoundException {
+    public ResponseEntity<Object> editProduct(@PathVariable(name = "productId") Long productId, @RequestBody EditProductRequestDTO dto) throws ProductNotFoundException {
         try{
             Product product = productService.editProduct(productId, Product.fromEditProductRequestDTO(dto));
-            return new ResponseEntity<>(EditProductResponseDTO.fromProduct(product), HttpStatus.OK);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(EditProductResponseDTO.fromProduct(product));
+//            return new ResponseEntity<>(EditProductResponseDTO.fromProduct(product), HttpStatus.OK);
         }
         catch(ProductNotFoundException e){
             // ToDo -- pass an error message stating product not found
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            // https://stackoverflow.com/a/32445360/6818945
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    // for some reason this text does not show up in postman
+                    .body("something went wrong");
+//            return new ResponseEntity<>("something wrong",HttpStatus.NO_CONTENT);
         }
     }
 
