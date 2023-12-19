@@ -65,7 +65,7 @@ public class ProductService implements IProductService {
     public Product editProduct(Long productId, Product product) throws ProductNotFoundException {
         // first check if product exists
         Product existingProduct = getProductById(productId);
-        if(existingProduct == null) throw new ProductNotFoundException();
+        if(existingProduct == null) throw new ProductNotFoundException("Product : "+productId+" not found to edit");
 
         // ToDo -- in JPA -- check what happens if we dont specify rating like follows -- does it reset in DB or use existing
         product.setRating(existingProduct.getRating());
@@ -78,7 +78,7 @@ public class ProductService implements IProductService {
     public Product deleteProduct(Long productId) throws ProductNotFoundException {
         // first check if product exists
         Product existingProduct = getProductById(productId);
-        if(existingProduct == null) throw new ProductNotFoundException();
+        if(existingProduct == null) throw new ProductNotFoundException("Product : "+productId+" not found to delete");
 
         FSProduct deletedProduct = fsClient.deleteProduct(productId);
         return Product.fromFSProduct(deletedProduct);

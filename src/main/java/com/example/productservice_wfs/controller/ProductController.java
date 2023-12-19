@@ -1,6 +1,9 @@
 package com.example.productservice_wfs.controller;
 
 import com.example.productservice_wfs.dto.*;
+import com.example.productservice_wfs.dto.api.APIResponse;
+import com.example.productservice_wfs.dto.api.APIResponseFailure;
+import com.example.productservice_wfs.dto.api.APIResponseSuccess;
 import com.example.productservice_wfs.exceptions.ProductNotFoundException;
 import com.example.productservice_wfs.models.Product;
 import com.example.productservice_wfs.service.IProductService;
@@ -24,63 +27,125 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}")
-    public HttpEntity<ProductResponseDTO> getProductById(@PathVariable("productId") Long productId) throws Exception {
+    public HttpEntity<APIResponse> getProductById(@PathVariable("productId") Long productId) throws Exception {
+        MultiValueMap<String,String> headers = new LinkedMultiValueMap<>();
+        headers.add("class-name", "integrating APIS");
+        APIResponse response = null;
+        HttpStatus httpStatus = HttpStatus.OK;
+
         try{
             Product product = productService.getProductById(productId);
 
             if(Objects.isNull(product)){
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                response = new APIResponseSuccess<ProductResponseDTO>(null);
+                // spring will strip the body for 204 status code
+                // change status code to something else to see some content in body (response: null)
+                httpStatus = HttpStatus.NO_CONTENT;
+            }
+            else{
+                response = new APIResponseSuccess<ProductResponseDTO>(ProductResponseDTO.fromProduct(product));
+                httpStatus = HttpStatus.OK;
             }
 
-            MultiValueMap<String,String> headers = new LinkedMultiValueMap<>();
-            headers.add("class-name", "integrating APIS");
-
-            return new ResponseEntity<>(ProductResponseDTO.fromProduct(product),headers, HttpStatus.OK);
+//            return new ResponseEntity<>(ProductResponseDTO.fromProduct(product),headers, HttpStatus.OK);
         } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            response = new APIResponseFailure(e);
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         }
+
+        return new ResponseEntity<>(response, headers, httpStatus);
     }
 
     @GetMapping("/")
-    public HttpEntity<List<ProductResponseDTO>> getAllProducts(){
-        List<Product> products = productService.getAllProducts();
-        return new ResponseEntity<>(ProductResponseDTO.fromProductList(products), HttpStatus.OK);
+    public HttpEntity<APIResponse> getAllProducts(){
+        APIResponse response = null;
+        HttpStatus httpStatus = HttpStatus.OK;
+
+        try{
+            List<Product> products = productService.getAllProducts();
+            response = new APIResponseSuccess<List<ProductResponseDTO>>(ProductResponseDTO.fromProductList(products));
+            httpStatus = HttpStatus.OK;
+        }
+        catch(Exception e){
+            response = new APIResponseFailure(e);
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        return ResponseEntity
+                .status(httpStatus)
+                .body(response);
     }
 
     @PostMapping("/")
-    public HttpEntity<AddProductResponseDTO> createProduct(@RequestBody AddProductRequestDTO dto){
-        Product product = productService.addProduct(Product.fromAddProductRequestDTO(dto));
-        return new ResponseEntity<>(AddProductResponseDTO.fromProduct(product), HttpStatus.CREATED);
+    public HttpEntity<APIResponse> createProduct(@RequestBody AddProductRequestDTO dto){
+        APIResponse response = null;
+        HttpStatus httpStatus = HttpStatus.CREATED;
+
+        try{
+            Product product = productService.addProduct(Product.fromAddProductRequestDTO(dto));
+            response = new APIResponseSuccess<>(AddProductResponseDTO.fromProduct(product));
+            httpStatus = HttpStatus.CREATED;
+        }
+        catch(Exception e){
+            response = new APIResponseFailure(e);
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        return ResponseEntity.status(httpStatus).body(response);
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<Object> editProduct(@PathVariable(name = "productId") Long productId, @RequestBody EditProductRequestDTO dto) throws ProductNotFoundException {
+    public ResponseEntity<APIResponse> editProduct(@PathVariable(name = "productId") Long productId, @RequestBody EditProductRequestDTO dto) throws ProductNotFoundException {
+        APIResponse response = null;
+        HttpStatus httpStatus = HttpStatus.OK;
+
         try{
             Product product = productService.editProduct(productId, Product.fromEditProductRequestDTO(dto));
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(EditProductResponseDTO.fromProduct(product));
-//            return new ResponseEntity<>(EditProductResponseDTO.fromProduct(product), HttpStatus.OK);
+            response = new APIResponseSuccess<>(EditProductResponseDTO.fromProduct(product));
+            httpStatus = HttpStatus.OK;
         }
         catch(ProductNotFoundException e){
-            // ToDo -- pass an error message stating product not found
-            // https://stackoverflow.com/a/32445360/6818945
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    // for some reason this text does not show up in postman
-                    .body("something went wrong");
-//            return new ResponseEntity<>("something wrong",HttpStatus.NO_CONTENT);
+            response = new APIResponseFailure(e);
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+
+//            // https://stackoverflow.com/a/32445360/6818945
+//            return ResponseEntity
+//                    .status(HttpStatus.OK)
+////                    .status(HttpStatus.NO_CONTENT)
+//                    // if the status is 204, spring will strip the body completely,
+//                    // so below line will work only for non 204 status codes
+//                    .body("something went wrong");
+////            return new ResponseEntity<>("something wrong",HttpStatus.NO_CONTENT);
         }
+        catch(Exception e){
+            response = new APIResponseFailure(e);
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        return new ResponseEntity<>(response, httpStatus);
     }
 
     @DeleteMapping(path = "/{productId}")
-    public HttpEntity<ProductResponseDTO> deleteProduct(@PathVariable(name = "productId") Long productId){
+    public HttpEntity<APIResponse> deleteProduct(@PathVariable(name = "productId") Long productId){
+        APIResponse response = null;
+        HttpStatus httpStatus = HttpStatus.OK;
+
         try{
             Product deletedProduct = productService.deleteProduct(productId);
-            return new ResponseEntity<>(ProductResponseDTO.fromProduct(deletedProduct), HttpStatus.OK);
-        } catch (ProductNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            response = new APIResponseSuccess<>(ProductResponseDTO.fromProduct(deletedProduct));
+            // no need to set httpStatus as it was set to happy scenario while declaration above
+//            httpStatus = HttpStatus.OK;
         }
+        catch (ProductNotFoundException e) {
+            response = new APIResponseFailure(e);
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        catch (Exception e){
+            response = new APIResponseFailure(e);
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        return ResponseEntity.status(httpStatus).body(response);
     }
 }
 
