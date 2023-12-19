@@ -7,6 +7,7 @@ import com.example.productservice_wfs.dto.api.APIResponseSuccess;
 import com.example.productservice_wfs.exceptions.ProductNotFoundException;
 import com.example.productservice_wfs.models.Product;
 import com.example.productservice_wfs.service.IProductService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,8 @@ import java.util.Objects;
 public class ProductController {
     private IProductService productService;
 
-    public ProductController(IProductService productService) {
+    // https://stackoverflow.com/a/19232501/6818945
+    public ProductController(@Qualifier("DBProductService") IProductService productService) {
         this.productService = productService;
     }
 

@@ -1,15 +1,19 @@
 package com.example.productservice_wfs.models;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Entity
 public class Category extends BaseModel {
+////    specify max length of a column (max Varchar length)
+//    @Column(length = 10)
     String name;
     String description;
-    List<Product> products;
 
     public static Category fromString(String category){
         Category c = new Category();

@@ -4,16 +4,20 @@ import com.example.productservice_wfs.exceptions.ProductNotFoundException;
 import com.example.productservice_wfs.fakestoreapi.FSClient;
 import com.example.productservice_wfs.fakestoreapi.models.FSProduct;
 import com.example.productservice_wfs.models.Product;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
-public class ProductService implements IProductService {
+// https://stackoverflow.com/a/19232501/6818945
+@Service("FSProductService")
+//@Primary
+public class FSProductService implements IProductService {
 
     private FSClient fsClient;
 
-    public ProductService(FSClient fsClient) {
+    public FSProductService(FSClient fsClient) {
         this.fsClient = fsClient;
     }
 

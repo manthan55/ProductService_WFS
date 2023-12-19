@@ -39,6 +39,8 @@ public class ProductResponseDTO {
     public static List<ProductResponseDTO> fromProductList(List<Product> products){
         List<ProductResponseDTO> dtos = new ArrayList<>();
 
+        if(products == null) return dtos;
+
         for (Product product :
                 products) {
             dtos.add(ProductResponseDTO.fromProduct(product));
