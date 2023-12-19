@@ -1,17 +1,11 @@
 package com.example.productservice_wfs.service;
 
-import ch.qos.logback.core.util.PropertySetterException;
 import com.example.productservice_wfs.exceptions.ProductNotFoundException;
 import com.example.productservice_wfs.fakestoreapi.FSClient;
-import com.example.productservice_wfs.fakestoreapi.FakeStoreCreateProductRequest;
-import com.example.productservice_wfs.fakestoreapi.FakeStoreProductResponse;
 import com.example.productservice_wfs.fakestoreapi.models.FSProduct;
 import com.example.productservice_wfs.models.Product;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -65,5 +59,28 @@ public class ProductService implements IProductService {
 ////                );
 //
 //        return dto;
+    }
+
+    @Override
+    public Product editProduct(Long productId, Product product) throws ProductNotFoundException {
+        // first check if product exists
+        Product existingProduct = getProductById(productId);
+        if(existingProduct == null) throw new ProductNotFoundException();
+
+        // ToDo -- in JPA -- check what happens if we dont specify rating like follows -- does it reset in DB or use existing
+        product.setRating(existingProduct.getRating());
+
+        FSProduct updatedProduct = fsClient.updateProduct(productId,FSProduct.fromProduct(product));
+        return Product.fromFSProduct(updatedProduct);
+    }
+
+    @Override
+    public Product deleteProduct(Long productId) throws ProductNotFoundException {
+        // first check if product exists
+        Product existingProduct = getProductById(productId);
+        if(existingProduct == null) throw new ProductNotFoundException();
+
+        FSProduct deletedProduct = fsClient.deleteProduct(productId);
+        return Product.fromFSProduct(deletedProduct);
     }
 }

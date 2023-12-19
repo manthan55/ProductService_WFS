@@ -13,8 +13,8 @@ public class ProductServiceWfsApplication {
         SpringApplication.run(ProductServiceWfsApplication.class, args);
     }
 
-    @Bean
-    public RestTemplateBuilder getRestTemplate() {
-        return new RestTemplateBuilder();
-    }
+//    @Bean
+//    public RestTemplateBuilder getRestTemplate() {
+//        return new RestTemplateBuilder();
+//    }
 }

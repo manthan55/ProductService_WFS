@@ -1,7 +1,7 @@
 package com.example.productservice_wfs.controller;
 
-import com.example.productservice_wfs.dto.AddProductRequestDTO;
-import com.example.productservice_wfs.fakestoreapi.FakeStoreProductResponse;
+import com.example.productservice_wfs.dto.*;
+import com.example.productservice_wfs.exceptions.ProductNotFoundException;
 import com.example.productservice_wfs.models.Product;
 import com.example.productservice_wfs.service.IProductService;
 import org.springframework.http.HttpEntity;
@@ -24,7 +24,7 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}")
-    public HttpEntity<Product> getProductById(@PathVariable("productId") Long productId) throws Exception {
+    public HttpEntity<ProductResponseDTO> getProductById(@PathVariable("productId") Long productId) throws Exception {
         try{
             Product product = productService.getProductById(productId);
 
@@ -35,22 +35,44 @@ public class ProductController {
             MultiValueMap<String,String> headers = new LinkedMultiValueMap<>();
             headers.add("class-name", "integrating APIS");
 
-            return new ResponseEntity<>(product,headers, HttpStatus.OK);
+            return new ResponseEntity<>(ProductResponseDTO.fromProduct(product),headers, HttpStatus.OK);
         } catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/")
-    public HttpEntity<List<Product>> getAllProducts(){
+    public HttpEntity<List<ProductResponseDTO>> getAllProducts(){
         List<Product> products = productService.getAllProducts();
-        return new ResponseEntity<>(products, HttpStatus.OK);
+        return new ResponseEntity<>(ProductResponseDTO.fromProductList(products), HttpStatus.OK);
     }
 
     @PostMapping("/")
-    public Product createProduct(@RequestBody AddProductRequestDTO dto){
+    public HttpEntity<AddProductResponseDTO> createProduct(@RequestBody AddProductRequestDTO dto){
         Product product = productService.addProduct(Product.fromAddProductRequestDTO(dto));
-        return product;
+        return new ResponseEntity<>(AddProductResponseDTO.fromProduct(product), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{productId}")
+    public HttpEntity<EditProductResponseDTO> editProduct(@PathVariable(name = "productId") Long productId, @RequestBody EditProductRequestDTO dto) throws ProductNotFoundException {
+        try{
+            Product product = productService.editProduct(productId, Product.fromEditProductRequestDTO(dto));
+            return new ResponseEntity<>(EditProductResponseDTO.fromProduct(product), HttpStatus.OK);
+        }
+        catch(ProductNotFoundException e){
+            // ToDo -- pass an error message stating product not found
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+    }
+
+    @DeleteMapping(path = "/{productId}")
+    public HttpEntity<ProductResponseDTO> deleteProduct(@PathVariable(name = "productId") Long productId){
+        try{
+            Product deletedProduct = productService.deleteProduct(productId);
+            return new ResponseEntity<>(ProductResponseDTO.fromProduct(deletedProduct), HttpStatus.OK);
+        } catch (ProductNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
     }
 }
 

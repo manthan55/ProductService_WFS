@@ -1,10 +1,13 @@
 package com.example.productservice_wfs.models;
 
+import lombok.Data;
+
 import java.util.Date;
 
+@Data
 public class BaseModel {
-    private Long id;
-    private String createBy;
-    private Date createdAt;
-    private Boolean isDeleted; // This can be an Enum as well.
+    protected Long id;
+    protected String createBy;
+    protected Date createdAt;
+    protected Boolean isDeleted; // This can be an Enum as well.
 }

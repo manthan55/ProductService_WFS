@@ -9,5 +9,6 @@ public interface IFakeStoreAdapter {
     List<FSProduct> getAllProducts();
     FSProduct addProduct(FSProduct product);
     FSProduct updateProduct(Long id, FSProduct product);
+    FSProduct deleteProduct(Long id);
     List<String> getAllCategories();
 }

@@ -1,5 +1,7 @@
 package com.example.productservice_wfs.service;
 
+import com.example.productservice_wfs.fakestoreapi.FSClient;
+import com.example.productservice_wfs.models.Category;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 
@@ -8,25 +10,15 @@ import java.util.List;
 
 @Service
 public class CategoryService implements ICategoryService {
-    private RestTemplateBuilder restTemplateBuilder;
+    private FSClient fsClient;
 
-
-    public CategoryService(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplateBuilder = restTemplateBuilder;
+    public CategoryService(FSClient fsClient) {
+        this.fsClient = fsClient;
     }
 
     @Override
-    public List<String> getAllCategories() {
-        String[] response = restTemplateBuilder
-                .build()
-                .getForEntity(
-                        "https://fakestoreapi.com/products/categories",
-                        String[].class
-                        )
-                .getBody();
-
-
-        assert response != null;
-        return Arrays.asList(response);
+    public List<Category> getAllCategories() {
+        List<String> response = fsClient.getAllCategories();
+        return Category.fromStringList(response);
     }
 }

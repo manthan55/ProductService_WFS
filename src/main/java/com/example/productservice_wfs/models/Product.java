@@ -2,6 +2,7 @@ package com.example.productservice_wfs.models;
 
 
 import com.example.productservice_wfs.dto.AddProductRequestDTO;
+import com.example.productservice_wfs.dto.EditProductRequestDTO;
 import com.example.productservice_wfs.fakestoreapi.models.FSProduct;
 import lombok.Data;
 
@@ -15,11 +16,13 @@ public class Product extends BaseModel{
     String description;
     Category category;
     String image;
+    Rating rating;
 
     public static Product fromFSProduct(FSProduct fsProduct){
         if(fsProduct == null) return null;
         
         Product p = new Product();
+        p.setId(Long.parseLong(fsProduct.getId()));
         p.setTitle(fsProduct.getTitle());
         p.setPrice(fsProduct.getPrice());
         p.setDescription(fsProduct.getDescription());
@@ -28,8 +31,11 @@ public class Product extends BaseModel{
         Category c = new Category();
         c.setName(fsProduct.getCategory());
         c.setDescription(fsProduct.getCategory());
-
         p.setCategory(c);
+
+        // FakeStore does not return rating on addition/updation of a new product
+        // but it does for GetSingleProduct & GetAllProducts
+        if(fsProduct.getRating() != null) p.setRating(new Rating(fsProduct.getRating()));
 
         return p;
     }
@@ -57,8 +63,32 @@ public class Product extends BaseModel{
         Category c = new Category();
         c.setName(productDTO.getCategory());
         c.setDescription(productDTO.getCategory());
-
         p.setCategory(c);
+
+        // new product has no rating
+        // can use lombok all args generated constructor instead of static from__ methods (like we did above for category)
+        p.setRating(new Rating(0.0,0));
+
+        return p;
+    }
+
+    public static Product fromEditProductRequestDTO(EditProductRequestDTO productDTO){
+        if(productDTO == null) return null;
+
+        Product p = new Product();
+        p.setTitle(productDTO.getTitle());
+        p.setPrice(productDTO.getPrice());
+        p.setDescription(productDTO.getDescription());
+        p.setImage(productDTO.getImage());
+
+        Category c = new Category();
+        c.setName(productDTO.getCategory());
+        c.setDescription(productDTO.getCategory());
+        p.setCategory(c);
+
+        // for editing a product, callers don't pass rating (should not)
+        // we must take the exiting rating of the product
+        // the setting of existing rating of this product is done in service layer
 
         return p;
     }

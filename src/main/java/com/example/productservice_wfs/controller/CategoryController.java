@@ -1,5 +1,6 @@
 package com.example.productservice_wfs.controller;
 
+import com.example.productservice_wfs.dto.CategoryResponseDTO;
 import com.example.productservice_wfs.service.ICategoryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -18,8 +19,8 @@ public class CategoryController {
     }
 
     @GetMapping("/")
-    private List<String> getAllCategories(){
-        return categoryService.getAllCategories();
+    private List<CategoryResponseDTO> getAllCategories(){
+        return CategoryResponseDTO.fromCategoryList(categoryService.getAllCategories());
     }
 
     @GetMapping("/headers")
