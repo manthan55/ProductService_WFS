@@ -5,6 +5,7 @@ import com.example.productservice_wfs.dto.api.APIResponse;
 import com.example.productservice_wfs.dto.api.APIResponseFailure;
 import com.example.productservice_wfs.dto.api.APIResponseSuccess;
 import com.example.productservice_wfs.service.ICategoryService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ import java.util.List;
 public class CategoryController {
     private ICategoryService categoryService;
 
-    public CategoryController(ICategoryService categoryService) {
+    public CategoryController(@Qualifier("DBCategoryService") ICategoryService categoryService) {
         this.categoryService = categoryService;
     }
 

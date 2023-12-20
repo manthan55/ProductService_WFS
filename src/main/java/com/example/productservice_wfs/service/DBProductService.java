@@ -6,6 +6,7 @@ import com.example.productservice_wfs.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 // https://stackoverflow.com/a/19232501/6818945
 @Service("DBProductService")
@@ -18,12 +19,14 @@ public class DBProductService implements IProductService{
 
     @Override
     public Product getProductById(Long productId) {
-        return null;
+        Optional<Product> optProduct = productRepository.findById(productId);
+        if(optProduct.isEmpty()) return null;
+        return optProduct.get();
     }
 
     @Override
     public List<Product> getAllProducts() {
-        return null;
+        return productRepository.findAll();
     }
 
     @Override
@@ -39,6 +42,11 @@ public class DBProductService implements IProductService{
 
     @Override
     public Product deleteProduct(Long productId) throws ProductNotFoundException {
-        return null;
+        // first check if product exists
+        Product existingProduct = getProductById(productId);
+        if(existingProduct == null) throw new ProductNotFoundException("Product : "+productId+" not found to delete");
+
+        productRepository.deleteById(productId);
+        return existingProduct;
     }
 }
