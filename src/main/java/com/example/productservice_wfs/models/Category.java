@@ -2,6 +2,7 @@ package com.example.productservice_wfs.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -14,6 +15,9 @@ public class Category extends BaseModel {
 //    @Column(length = 10)
     String name;
     String description;
+
+    @OneToMany(mappedBy = "category")
+    List<Product> products;
 
     public static Category fromString(String category){
         Category c = new Category();
