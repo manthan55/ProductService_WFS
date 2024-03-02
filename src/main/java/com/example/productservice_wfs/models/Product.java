@@ -4,22 +4,21 @@ package com.example.productservice_wfs.models;
 import com.example.productservice_wfs.dto.AddProductRequestDTO;
 import com.example.productservice_wfs.dto.EditProductRequestDTO;
 import com.example.productservice_wfs.fakestoreapi.models.FSProduct;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+// to provide custom table name
+//@Entity(name = "prds")
 @Entity
 public class Product extends BaseModel{
     String title;
     Double price;
     String description;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     Category category;
     String image;
     @OneToOne(cascade = CascadeType.ALL)
